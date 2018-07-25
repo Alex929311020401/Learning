@@ -23,14 +23,14 @@ ECMAScript v1，v2 只允许Unicode字符出现在注释或引号包含的字符
 **努力减少使用全局变量的方法：在应用程序中创建唯一一个全局变量，并定义该变量为当前应用的容器。也可以使用闭包体将信息隐藏**  
 js 支持函数作用域，定义在函数中的参数再函数外部是不可见的，并且在函数中的任意位置定义的变量都可以在函数任意位置访问到该变量，但是js 缺少块级作用域，最好的做法是在函数体的顶部声明函数中可能用到的所有变量。
 ### 四、注意 JavaSceipt 数据类型的特殊性
-- 1、防止浮点数溢出
+#### 1、防止浮点数溢出
 二进制的浮点数不能正确的处理十进制的小数； 0.2 + 0.1 ！= 0.3
 浮点数中的整数运算是精确的，所以小数表现出来的问题可以通过精度来避免。 (2+1)/10 = 0.3
-- 2、慎用 javascript 类型装换
+#### 2、慎用 javascript 类型装换
 javascript 一般遵循如果某个类型的值被用于需要其他类型的环境中，javascript 就自动将这个值转换成所需要的类型。
 ![image](img/2.jpg)
 ![image](img/3.jpg)
-- 3、正确检测数据类型  
+#### 3、正确检测数据类型  
 typeof返回值：“number”，“string”，“boolean”，“object”，“function”，“undefined”
 ```javascript
 //typeof 检测 null 结果为 object 应使用：
@@ -69,9 +69,50 @@ function(o){
     var _type = {
         "undefined" : "undefined",
         "number" : "number",
-        boolean，string，function，regexp，array,date,error,object,null
+        "boolean" : "boolean",
+        "string" : "string",
+        "[object function]" : "function",
+        "[object RegExp]" : "regexp",
+        "[object Array]" : "array",
+        "[object Date]" : "date",
+        "[object Error]" : "error"
     }
+    return _typeof[typeof 0] || _typeof[_toString.call(o)] || (o ? "object" : "null");
 }
 
 ```
 ![image](img/WechatIMG8.png)
+#### 4、避免误用 parseInt
+- 浮点数中的点号对于parseInt是非法字符；
+- 以0为开头的数字字符串，parseInt函数会把它作为八进制数字处理；
+- 在使用 parseInt 时一定要提供第二个参数，基数；parseInt("10",8);
+### 五、防止 javascript 自动插入分号
+js 有一个机制，在解析时，能够在一句话后面插入分号，用来修改语句末尾遗漏的分号分隔符；
+js 中所有空格符都会被忽略；因此可以利用空格格式化代码。
+```javascript
+var f = function(){
+    return
+    {
+        ststus : true
+    }
+}
+// js 自动插入分号 ，返回 undefined
+```
+js 代码建议：1、不管一行内语句是否完整，只要是完整的语句都必须增加分号，以表示句子结束；2、当长句子需要分行时，在分行时应确保一行内不能形成完整的逻辑语义；
+```javascript
+var a = 
+    b = 
+    c = 4;
+// 等同于
+var a = b = c = 4;
+
+//拆分
+var i = a ? 1 : b ? 2 : c ? 3 : 4;
+var i = a ? 1
+        : b ? 2
+        : c ? 3
+        :4;
+```
+### 六、正确处理 javascript 特殊值
+#### 1、正确使用 NAN 和 Infinity
+NAN 是 IEEE 754 中定义的一个特殊 数量值； typeof NAN == "number"; //true
